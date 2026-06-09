@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent Evaluation</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .pulse { animation: pulse 2s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <!-- Header -->
+  <header class="bg-white border-b border-gray-200 sticky top-0 z-10">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+          <span class="text-white font-bold text-sm">AE</span>
+        </div>
+        <h1 class="text-xl font-bold text-gray-900">Agent Evaluation</h1>
+      </div>
+      <div id="db-status" class="flex items-center gap-2 text-sm text-gray-500">
+        <span class="w-2 h-2 rounded-full bg-gray-300 pulse"></span>
+        Connecting...
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-6 py-8">
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+      <div class="bg-white rounded-xl p-5 border border-gray-200 shadow-sm">
+        <div class="text-sm text-gray-500 mb-1">Database</div>
+        <div id="stat-db" class="text-2xl font-bold text-gray-900">—</div>
+      </div>
+      <div class="bg-white rounded-xl p-5 border border-gray-200 shadow-sm">
+        <div class="text-sm text-gray-500 mb-1">Agents</div>
+        <div id="stat-agents" class="text-2xl font-bold text-gray-900">—</div>
+      </div>
+      <div class="bg-white rounded-xl p-5 border border-gray-200 shadow-sm">
+        <div class="text-sm text-gray-500 mb-1">Scenarios</div>
+        <div id="stat-scenarios" class="text-2xl font-bold text-gray-900">—</div>
+      </div>
+      <div class="bg-white rounded-xl p-5 border border-gray-200 shadow-sm">
+        <div class="text-sm text-gray-500 mb-1">Runs</div>
+        <div id="stat-runs" class="text-2xl font-bold text-gray-900">—</div>
+      </div>
+    </div>
+
+    <!-- Two-column layout -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Agents Panel -->
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
+        <div class="p-5 border-b border-gray-100 flex items-center justify-between">
+          <h2 class="font-semibold text-gray-900">Agents</h2>
+          <button onclick="createDummyAgent()" class="px-3 py-1.5 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition">
+            + Add Test Agent
+          </button>
+        </div>
+        <div id="agents-list" class="p-5">
+          <p class="text-gray-400 text-sm">Loading...</p>
+        </div>
+      </div>
+
+      <!-- Runs Panel -->
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
+        <div class="p-5 border-b border-gray-100 flex items-center justify-between">
+          <h2 class="font-semibold text-gray-900">Recent Runs</h2>
+          <button onclick="createDummyRun()" class="px-3 py-1.5 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition">
+            + Add Test Run
+          </button>
+        </div>
+        <div id="runs-list" class="p-5">
+          <p class="text-gray-400 text-sm">Loading...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- API Test Section -->
+    <div class="mt-8 bg-white rounded-xl border border-gray-200 shadow-sm p-5">
+      <h2 class="font-semibold text-gray-900 mb-4">API Tester</h2>
+      <div class="flex gap-3 flex-wrap">
+        <button onclick="testEndpoint('/api/health')" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium">
+          GET /api/health
+        </button>
+        <button onclick="testEndpoint('/api/ping')" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium">
+          GET /api/ping
+        </button>
+        <button onclick="testEndpoint('/api/stats')" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium">
+          GET /api/stats
+        </button>
+        <button onclick="testEndpoint('/api/agents')" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium">
+          GET /api/agents
+        </button>
+        <button onclick="testEndpoint('/api/runs')" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium">
+          GET /api/runs
+        </button>
+      </div>
+      <pre id="api-result" class="mt-4 bg-gray-900 text-green-400 p-4 rounded-lg text-sm overflow-auto max-h-64 hidden"></pre>
+    </div>
+  </main>
+
+  <script>
+    const API = '';
+
+    async function fetchJSON(path, opts = {}) {
+      const res = await fetch(API + path, {
+        headers: { 'Content-Type': 'application/json' },
+        ...opts,
+      });
+      return res.json();
+    }
+
+    async function loadStats() {
+      try {
+        const stats = await fetchJSON('/api/stats');
+        document.getElementById('stat-db').textContent = stats.db === 'connected' ? '✓ Connected' : '✗ Disconnected';
+        document.getElementById('stat-db').className = `text-2xl font-bold ${stats.db === 'connected' ? 'text-green-600' : 'text-red-600'}`;
+        document.getElementById('stat-agents').textContent = stats.agents;
+        document.getElementById('stat-scenarios').textContent = stats.scenarios;
+        document.getElementById('stat-runs').textContent = stats.runs;
+
+        const statusEl = document.getElementById('db-status');
+        if (stats.db === 'connected') {
+          statusEl.innerHTML = '<span class="w-2 h-2 rounded-full bg-green-500"></span> MongoDB Connected';
+          statusEl.className = 'flex items-center gap-2 text-sm text-green-600';
+        } else {
+          statusEl.innerHTML = '<span class="w-2 h-2 rounded-full bg-red-500"></span> MongoDB Disconnected';
+          statusEl.className = 'flex items-center gap-2 text-sm text-red-600';
+        }
+      } catch (e) {
+        document.getElementById('stat-db').textContent = '✗ Error';
+        document.getElementById('stat-db').className = 'text-2xl font-bold text-red-600';
+      }
+    }
+
+    async function loadAgents() {
+      try {
+        const agents = await fetchJSON('/api/agents');
+        const el = document.getElementById('agents-list');
+        if (!agents.length) {
+          el.innerHTML = '<p class="text-gray-400 text-sm">No agents yet. Click "+ Add Test Agent" to create one.</p>';
+          return;
+        }
+        el.innerHTML = agents.map(a => `
+          <div class="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
+            <div>
+              <div class="font-medium text-gray-900">${a.name}</div>
+              <div class="text-xs text-gray-500">${a.env || 'n/a'} · ${a.kalturaAgentId || a._id}</div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-sm text-gray-500">${a.testsRun} runs</span>
+              <button onclick="deleteAgent('${a._id}')" class="text-red-400 hover:text-red-600 text-xs px-1.5 py-0.5 rounded hover:bg-red-50" title="Delete">✕</button>
+            </div>
+          </div>
+        `).join('');
+      } catch (e) {
+        document.getElementById('agents-list').innerHTML = '<p class="text-red-500 text-sm">Failed to load agents</p>';
+      }
+    }
+
+    async function loadRuns() {
+      try {
+        const runs = await fetchJSON('/api/runs');
+        const el = document.getElementById('runs-list');
+        if (!runs.length) {
+          el.innerHTML = '<p class="text-gray-400 text-sm">No runs yet. Click "+ Add Test Run" to create one.</p>';
+          return;
+        }
+        el.innerHTML = runs.map(r => {
+          const stateColors = { done: 'bg-green-100 text-green-700', running: 'bg-blue-100 text-blue-700', error: 'bg-red-100 text-red-700', pending: 'bg-gray-100 text-gray-700' };
+          const color = stateColors[r.state] || stateColors.pending;
+          return `
+            <div class="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
+              <div>
+                <div class="font-medium text-gray-900">${r.agentName || r.agentId}</div>
+                <div class="text-xs text-gray-500">${r.completed}/${r.total} scenarios · ${r.passed} passed</div>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="px-2 py-0.5 rounded text-xs font-medium ${color}">${r.state}</span>
+                <button onclick="deleteRun('${r._id}')" class="text-red-400 hover:text-red-600 text-xs px-1.5 py-0.5 rounded hover:bg-red-50" title="Delete">✕</button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } catch (e) {
+        document.getElementById('runs-list').innerHTML = '<p class="text-red-500 text-sm">Failed to load runs</p>';
+      }
+    }
+
+    async function deleteAgent(id) {
+      if (!confirm('Delete this agent?')) return;
+      await fetchJSON(`/api/agents/${id}`, { method: 'DELETE' });
+      loadAgents();
+      loadStats();
+    }
+
+    async function deleteRun(id) {
+      if (!confirm('Delete this run?')) return;
+      await fetchJSON(`/api/runs/${id}`, { method: 'DELETE' });
+      loadRuns();
+      loadStats();
+    }
+
+    async function createDummyAgent() {
+      const names = ['Sales Assistant', 'Support Bot', 'Onboarding Guide', 'Product Expert', 'FAQ Helper'];
+      const name = names[Math.floor(Math.random() * names.length)] + ' ' + Math.floor(Math.random() * 100);
+      await fetchJSON('/api/agents', {
+        method: 'POST',
+        body: JSON.stringify({ name, env: 'qa', status: 'active', testsRun: Math.floor(Math.random() * 20) }),
+      });
+      loadAgents();
+      loadStats();
+    }
+
+    async function createDummyRun() {
+      const states = ['done', 'running', 'pending', 'error'];
+      const total = Math.floor(Math.random() * 10) + 3;
+      const completed = Math.floor(Math.random() * total);
+      const passed = Math.floor(Math.random() * completed);
+      await fetchJSON('/api/runs', {
+        method: 'POST',
+        body: JSON.stringify({
+          agentId: 'test-agent-' + Math.floor(Math.random() * 100),
+          agentName: 'Test Agent',
+          state: states[Math.floor(Math.random() * states.length)],
+          total,
+          completed,
+          passed,
+          needsWork: completed - passed,
+        }),
+      });
+      loadRuns();
+      loadStats();
+    }
+
+    async function testEndpoint(path) {
+      const el = document.getElementById('api-result');
+      el.classList.remove('hidden');
+      el.textContent = `GET ${path} ...\n`;
+      try {
+        const data = await fetchJSON(path);
+        el.textContent = `GET ${path}\n\n${JSON.stringify(data, null, 2)}`;
+      } catch (e) {
+        el.textContent = `GET ${path}\n\nError: ${e.message}`;
+      }
+    }
+
+    // Load everything on page load
+    loadStats();
+    loadAgents();
+    loadRuns();
+
+    // Refresh every 10s
+    setInterval(() => { loadStats(); loadAgents(); loadRuns(); }, 10000);
+  </script>
+</body>
+</html>

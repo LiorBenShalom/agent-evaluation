@@ -1,26 +1,26 @@
 global:
   stage: qa
-  domain_name: "ovp-ms-template"
-  team_name: "platform"
+  domain_name: "agent-evaluation"
+  team_name: "ai-labs"
   listenerPorts: '[{ "HTTP": 80 }]'
 
 externalSecrets:
   enabled: false
 
-template:
+agent-eval:
   enabled: true
-  app_name: template
+  app_name: agent-eval
   serviceAccount:
     enable: false
   envFrom:
     - secretRef:
-        name: ovp-ms-template-template-secrets
+        name: agent-evaluation-agent-eval-secrets
     - secretRef:
-        name: ovp-ms-template-template-env-vars
+        name: agent-evaluation-agent-eval-env-vars
   containers:
-    template:
+    agent-eval:
       image:
-        registry: template
+        registry: agent-eval
         tag: latest
       resources:
         limits:
@@ -78,10 +78,10 @@ template:
       alb.ingress.kubernetes.io/healthcheck-protocol: HTTP
       alb.ingress.kubernetes.io/success-codes: "200"
   kedaHpa:
-    template:
+    agent-eval:
       target:
         apiVersion: "apps/v1"
-        name: ovp-ms-template-template
+        name: agent-evaluation-agent-eval
         kind: deployment
       pollingInterval: 10
       cooldownPeriod: 210
@@ -105,5 +105,5 @@ template:
 
 environments:
   KALTURA_API_ENDPOINT: "https://api.nvq2.ovp.kaltura.com/api_v3/"
-  OTEL_MS_NAME: "template"
+  OTEL_MS_NAME: "agent-eval"
   OTEL_COLLECTOR_URL: "http://opentelemetry-collector.tools.svc.cluster.local:4317"

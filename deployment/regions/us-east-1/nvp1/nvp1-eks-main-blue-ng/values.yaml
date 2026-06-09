@@ -1,8 +1,8 @@
 global:
   cluster: "nvp1-eks-main-blue-ng"
 
-template:
+agent-eval:
   ingress:
     annotations:
-      alb.ingress.kubernetes.io/load-balancer-name: "nvp1-ovp-ms-template-alb-blue-ng"
-      external-dns.alpha.kubernetes.io/hostname: "ovp-ms-template-blue-ng.nvp1.ovp.kaltura.prod"
+      alb.ingress.kubernetes.io/load-balancer-name: "nvp1-agent-evaluation-alb-blue-ng"
+      external-dns.alpha.kubernetes.io/hostname: "agent-evaluation-blue-ng.nvp1.ovp.kaltura.prod"

@@ -1,46 +1,46 @@
 {
-  "name": "ovp-ms-template",
-  "version": "0.0.1",
-  "description": "Kaltura microservice template",
+  "name": "agent-evaluation",
+  "version": "0.1.0",
+  "description": "Kaltura Agent Evaluation Service",
   "author": "Kaltura",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "helm-env": "node repo-tools/create-deployment-structure.js",
     "prebuild": "rimraf dist",
-    "build": "nest build --webpack",
-    "format": "prettier --write 'shared/**/*.ts' 'apps/**/*.ts' && prettier --write --no-error-on-unmatched-pattern 'libs/**/*.ts'",
-    "start": "nest start",
-    "start:dev": "nest start --watch",
-    "lint": "eslint --max-warnings=0 'shared/**/*.ts' 'apps/**/*.ts' && eslint --max-warnings=0 --no-error-on-unmatched-pattern 'libs/**/*.ts'",
-    "test": "jest --passWithNoTests --filter=./safe-tests-filter.js"
+    "build": "nest build",
+    "start": "nest start agent-eval",
+    "start:dev": "nest start agent-eval --watch",
+    "lint": "eslint --max-warnings=0 'shared/**/*.ts' 'apps/**/*.ts'",
+    "test": "jest --passWithNoTests"
   },
   "dependencies": {
-    "@kaltura/commons-utils": "^2.3.0",
-    "@kaltura/node-typescript-client": "^21.20.0",
-    "@kaltura/services-common": "^4.6.0",
-    "@kaltura/services-mongo": "^2.0.1",
-    "@nestjs/mongoose": "^10.1.0",
+    "@nestjs/common": "^10.4.0",
+    "@nestjs/core": "^10.4.0",
+    "@nestjs/mongoose": "^11.0.4",
+    "@nestjs/platform-express": "^10.4.0",
+    "@nestjs/serve-static": "^5.0.5",
     "@nestjs/swagger": "^8.1.1",
-    "commander": "^13.1.0",
-    "eslint-plugin-unused-imports": "^4.3.0",
-    "mongoose": "^8.24.0"
+    "axios": "^1.17.0",
+    "mongoose": "^8.24.0",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1",
+    "socket.io-client": "^4.8.3"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.4.9",
     "@nestjs/testing": "^10.4.22",
+    "@types/express": "^4.17.21",
     "@types/jest": "^29.5.14",
-    "@types/supertest": "^6.0.3",
+    "@types/node": "^20.11.0",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
     "@typescript-eslint/parser": "^7.18.0",
     "eslint": "^8.57.1",
-    "eslint-config-prettier": "^9.1.2",
-    "eslint-plugin-prettier": "^5.5.4",
     "jest": "^29.7.0",
-    "mongodb-memory-server": "^11.1.0",
-    "supertest": "^7.2.2",
+    "rimraf": "^5.0.5",
     "ts-jest": "^29.4.6",
-    "ts-loader": "^9.5.4"
+    "ts-loader": "^9.5.4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.0"
   },
   "jest": {
     "moduleFileExtensions": [
@@ -53,13 +53,9 @@
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
-    "collectCoverageFrom": [
-      "**/*.(t|j)s"
-    ],
     "moduleNameMapper": {
       "^shared/(.*)$": "<rootDir>/shared/$1"
     },
-    "coverageDirectory": "./coverage",
     "testEnvironment": "node",
     "roots": [
       "<rootDir>",
@@ -67,6 +63,6 @@
     ]
   },
   "engines": {
-    "node": ">=22.0.0 < 24.0.0"
+    "node": ">=20.0.0 < 24.0.0"
   }
 }

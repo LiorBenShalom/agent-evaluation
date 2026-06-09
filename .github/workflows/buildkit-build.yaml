@@ -17,7 +17,7 @@ jobs:
     strategy:
       matrix:
         component:
-          - template
+          - agent-eval
     uses: kaltura/ovp-pipelines/.github/workflows/buildkit_build.yml@v4
     with:
       architectures: '["arm64", "amd64"]'
@@ -34,9 +34,9 @@ jobs:
     with:
       is-local: true
       chart-dir-location: deployment
-      applications-yaml-keys: 'template:template.containers.template.image.tag'
+      applications-yaml-keys: 'agent-eval:agent-eval.containers.agent-eval.image.tag'
       values-file-location: 'regions/us-east-1/nvq2/'
-      app-repo: ovp-ms-template
+      app-repo: agent-evaluation
       env: nvq2
       image-tag: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || needs.docker-build-and-push-image.outputs.image-tag }}
       default-branch: main

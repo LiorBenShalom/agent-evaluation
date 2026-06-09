@@ -4,7 +4,7 @@ global:
   image:
     repository: "137576761235.dkr.ecr.eu-west-1.amazonaws.com"
 
-template:
+agent-eval:
   enabled: false
   annotations:
     kaltura.com/observability: apps
@@ -14,9 +14,9 @@ template:
     vector.dev/logziobackend: 'true'
     vector.dev/s3: 'true'
   containers:
-    template:
+    agent-eval:
       image:
-        registry: template
+        registry: agent-eval
         tag: "latest"
       environmentVariables:
         - name: ENV_NAME
@@ -34,15 +34,15 @@ template:
                 pathType: ImplementationSpecific
                 backend:
                   service:
-                    name: irp2-ovp-ms-template-template-http-service
+                    name: irp2-agent-evaluation-agent-eval-http-service
                     port:
                       number: 80
   kedaHpa:
-    template:
+    agent-eval:
       minReplicaCount: 2
       maxReplicaCount: 20
       target:
-        name: irp2-ovp-ms-template-template
+        name: irp2-agent-evaluation-agent-eval
       hpaScaler:
         triggers:
           - type: cpu

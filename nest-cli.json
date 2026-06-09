@@ -16,13 +16,13 @@
     }
   ],
   "projects": {
-    "template": {
+    "agent-eval": {
       "type": "application",
-      "root": "apps/template",
+      "root": "apps/agent-eval",
       "entryFile": "main",
-      "sourceRoot": "apps/template/src",
+      "sourceRoot": "apps/agent-eval/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/template/tsconfig.app.json"
+        "tsConfigPath": "apps/agent-eval/tsconfig.app.json"
       }
     }
   }

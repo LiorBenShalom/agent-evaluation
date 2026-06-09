@@ -5,7 +5,7 @@ permissions:
     friendlyName: 'Always allowed actions'
 
 actionPermissionItems:
-  template:
+  agent-eval:
     create:
       partnerId: 0
       permissions:

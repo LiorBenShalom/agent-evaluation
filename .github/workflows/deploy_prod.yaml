@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         combinations:
-          - { yaml-key: 'template:template.containers.template.image.tag', val-file: "/" }
+          - { yaml-key: 'agent-eval:agent-eval.containers.agent-eval.image.tag', val-file: "/" }
     uses: kaltura/ovp-pipelines/.github/workflows/helm.yml@v4
     with:
       is-local: true

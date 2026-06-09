@@ -16,7 +16,7 @@ jobs:
     strategy:
       matrix:
         service:
-          - template
+          - agent-eval
     with:
       architectures: '["amd64"]'
       ref: ${{ github.event.pull_request.head.sha }}

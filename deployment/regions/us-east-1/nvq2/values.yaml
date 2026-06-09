@@ -3,7 +3,7 @@ global:
   stage: qa
   image:
     repository: "383697330906.dkr.ecr.us-east-1.amazonaws.com"
-template:
+agent-eval:
   enabled: true
   annotations:
     kaltura.com/observability: apps
@@ -13,9 +13,9 @@ template:
     vector.dev/logziobackend: 'true'
     vector.dev/s3: 'true'
   containers:
-    template:
+    agent-eval:
       image:
-        registry: template
+        registry: agent-eval
         tag: "9fbf7dd"
       environmentVariables:
         - name: ENV_NAME
@@ -33,15 +33,15 @@ template:
                 pathType: ImplementationSpecific
                 backend:
                   service:
-                    name: nvq2-ovp-ms-template-template-http-service
+                    name: nvq2-agent-evaluation-agent-eval-http-service
                     port:
                       number: 80
   kedaHpa:
-    template:
+    agent-eval:
       minReplicaCount: 1
       maxReplicaCount: 1
       target:
-        name: nvq2-ovp-ms-template-template
+        name: nvq2-agent-evaluation-agent-eval
       hpaScaler:
         triggers:
           - type: cpu

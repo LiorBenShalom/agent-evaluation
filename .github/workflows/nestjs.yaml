@@ -9,8 +9,8 @@ jobs:
   nestjs:
     uses: kaltura/ovp-pipelines/.github/workflows/nestjs-build.yml@v4
     with:
-      apps: template
-      openapi-apps: template
+      apps: agent-eval
+      openapi-apps: agent-eval
       # mongodb-action: true
       # start-compose: true
       # compose-health-services: mongo kafka

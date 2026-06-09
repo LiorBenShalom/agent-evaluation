@@ -4,7 +4,7 @@ global:
   image:
     repository: "650755435642.dkr.ecr.ap-southeast-2.amazonaws.com"
 
-template:
+agent-eval:
   enabled: false
   annotations:
     kaltura.com/observability: apps
@@ -14,9 +14,9 @@ template:
     vector.dev/logziobackend: 'true'
     vector.dev/s3: 'true'
   containers:
-    template:
+    agent-eval:
       image:
-        registry: template
+        registry: agent-eval
         tag: "latest"
       environmentVariables:
         - name: ENV_NAME
@@ -34,15 +34,15 @@ template:
                 pathType: ImplementationSpecific
                 backend:
                   service:
-                    name: syp2-ovp-ms-template-template-http-service
+                    name: syp2-agent-evaluation-agent-eval-http-service
                     port:
                       number: 80
   kedaHpa:
-    template:
+    agent-eval:
       minReplicaCount: 2
       maxReplicaCount: 5
       target:
-        name: syp2-ovp-ms-template-template
+        name: syp2-agent-evaluation-agent-eval
       hpaScaler:
         triggers:
           - type: cpu

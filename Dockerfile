@@ -43,9 +43,10 @@ ARG APP
 RUN apk add libcap \
     && setcap 'cap_net_bind_service=+ep' /usr/local/bin/node
 
-# Add debug tools
-RUN apk add --update curl  \
-    && apk add net-tools  \
+# Add debug tools and AWS DocumentDB CA certificate
+RUN apk add --update curl net-tools \
+    && curl -sS "https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem" \
+       -o /etc/ssl/certs/global-bundle.pem \
     && rm -rf /var/cache/apk/*
 
 # Create a data directory in case the app needs it
