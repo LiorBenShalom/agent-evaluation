@@ -1,0 +1,28 @@
+name: Deploy Prod
+run-name: "Deploy ${{ inputs.image-tag }} to Prod"
+on:
+  workflow_dispatch:
+    inputs:
+      image-tag:
+        description: 'Image tag to deploy. If not provided, there will be an image tag promotion.'
+        required: true
+        type: string
+jobs:
+  deploy-prod:
+    if: github.ref_name == ${{ github.event.repository.default_branch }}
+    strategy:
+      matrix:
+        combinations:
+          - { yaml-key: 'template:template.containers.template.image.tag', val-file: "/" }
+    uses: kaltura/ovp-pipelines/.github/workflows/helm.yml@v4
+    with:
+      is-local: true
+      chart-dir-location: deployment
+      applications-yaml-keys: ${{ matrix.combinations.yaml-key }}
+      values-file-location: ${{ matrix.combinations.val-file }}
+      app-repo: ${{ github.repository }}
+      env: ${{ matrix.combinations.env }}
+      image-tag: ${{ inputs.image-tag }}
+      default-branch: "main"
+    secrets:
+      token: ${{ secrets.RUNNER_TOKEN }}

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>OpenAPI Spec</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/styles/default.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/highlight.min.js"></script>
+    <link rel="icon" type="image/png" href="../favicon.png" />
+    <style>
+      header {
+        font-family: sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <!--    <section class="page-header"></section>-->
+    <script src="source.js"></script>
+
+    <hr />
+
+    <section class="main-content">
+      <pre id="highlighted"></pre>
+    </section>
+
+    <script>
+      function render(text) {
+        const html = hljs.highlight(text, { language: 'yaml' }).value;
+        const e = document.getElementById('highlighted');
+        e.innerHTML = html;
+      }
+
+      window.onload = function () {
+        fetch(specFilename)
+          .then(response => response.text())
+          .then(data => render(data));
+      };
+    </script>
+  </body>
+</html>

@@ -1,0 +1,31 @@
+name: Pr Argo Diff
+run-name: "get argo diff for ${{ github.head_ref }}"
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - deployment/**
+
+jobs:
+  get-changed-files:
+    if: ${{ !startsWith(github.head_ref, 'update-') }}
+    name: check changed files on ${{ github.head_ref }}
+    uses: kaltura/ovp-pipelines/.github/workflows/get-changed-app-pr.yml@4.4.2
+    with:
+      base_ref: ${{ github.base_ref }}
+      head_ref: ${{ github.head_ref }}
+
+  check-diff-on-branch:
+    name: diff for APP_NAME on ${{ matrix.clusters }}
+    uses: kaltura/ovp-pipelines/.github/workflows/argo-diff.yaml@4.4.2
+    needs: get-changed-files
+    if: ${{ !startsWith(github.head_ref, 'update-') && needs.get-changed-files.outputs.clusters != '[]' && needs.get-changed-files.outputs.clusters != '' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        clusters: ${{ fromJSON(needs.get-changed-files.outputs.clusters) }}
+    with:
+      branch_name: ${{ github.head_ref }}
+      app: "APP_NAME"
+      cluster:  ${{ matrix.clusters }}

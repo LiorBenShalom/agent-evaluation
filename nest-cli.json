@@ -1,0 +1,29 @@
+{
+  "collection": "@nestjs/schematics",
+  "monorepo": true,
+  "compilerOptions": {
+    "webpack": false,
+    "tsConfigPath": "tsconfig.json",
+    "plugins": ["@nestjs/swagger"]
+  },
+  "plugins": [
+    {
+      "name": "@nestjs/swagger",
+      "options": {
+        "dtoFileNameSuffix": [".dto.ts", ".entity.ts", ".enum.ts"],
+        "introspectComments": true
+      }
+    }
+  ],
+  "projects": {
+    "template": {
+      "type": "application",
+      "root": "apps/template",
+      "entryFile": "main",
+      "sourceRoot": "apps/template/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/template/tsconfig.app.json"
+      }
+    }
+  }
+}

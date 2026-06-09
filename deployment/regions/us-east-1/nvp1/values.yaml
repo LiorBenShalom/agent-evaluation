@@ -1,0 +1,55 @@
+global:
+  environment: nvp1
+  stage: prod
+  image:
+    repository: "583352821080.dkr.ecr.us-east-1.amazonaws.com"
+
+template:
+  enabled: false
+  annotations:
+    kaltura.com/observability: apps
+    prometheus.io/path: /metrics
+    prometheus.io/scrape: 'true'
+    prometheus.io/port: '80'
+    vector.dev/logziobackend: 'true'
+    vector.dev/s3: 'true'
+  containers:
+    template:
+      image:
+        registry: template
+        tag: "latest"
+      environmentVariables:
+        - name: ENV_NAME
+          value: "nvp1"
+        - name: KALTURA_API_ENDPOINT
+          value: "http://front-api.nvp1.ovp.kaltura.prod"
+  ingress:
+    annotations:
+      alb.ingress.kubernetes.io/subnets: "subnet-0046fb34de3e0319d,subnet-0315ebdf7e9e9f658,subnet-0249d54fa94ef8b35,subnet-08158af29527e1d07,subnet-05b5efb0277b4b3fb"
+    spec:
+      rules:
+        - http:
+            paths:
+              - path: /*
+                pathType: ImplementationSpecific
+                backend:
+                  service:
+                    name: nvp1-ovp-ms-template-template-http-service
+                    port:
+                      number: 80
+  kedaHpa:
+    template:
+      minReplicaCount: 2
+      maxReplicaCount: 20
+      target:
+        name: nvp1-ovp-ms-template-template
+      hpaScaler:
+        triggers:
+          - type: cpu
+            metadata:
+              type: Utilization
+              value: "70"
+          - type: memory
+            metadata:
+              type: Utilization
+              value: "70"

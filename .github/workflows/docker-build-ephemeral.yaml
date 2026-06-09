@@ -1,0 +1,54 @@
+name: Docker build ephemeral
+
+on:
+  pull_request_target:
+    types:
+      - labeled
+    paths-ignore:
+      - 'deployment/**'
+      - '.github/**'
+
+jobs:
+  docker-build-and-push:
+    if: contains(github.event.pull_request.labels.*.name, 'eph-env') && !contains(github.event.pull_request.labels.*.name, 'eph-deploy')
+    name: Buildkit Build
+    uses: kaltura/ovp-pipelines/.github/workflows/buildkit_build.yml@4.3.6
+    strategy:
+      matrix:
+        service:
+          - template
+    with:
+      architectures: '["amd64"]'
+      ref: ${{ github.event.pull_request.head.sha }}
+      docker-file-location: "."
+      docker-file-name: Dockerfile
+      ecr-image-name: ${{ matrix.service }}
+      additional-tags: >-
+        ${{ github.event.pull_request.head.sha }}
+        eph-env-${{ github.event.number }}
+
+  update-ephemeral-tag-and-label-pr:
+    name: Update eph tag & Label PR with ephemeral tag
+    needs: [ docker-build-and-push ]
+    runs-on: codebuild-ovp-lightweight-runner-${{ github.run_id }}-${{ github.run_attempt }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Update ephemeral tag
+        run: |
+          git config --global user.email "ovp-github-actions@kaltura.com"
+          git config --global user.name "ovp-github-actions"
+          git pull
+          git checkout ${{ github.head_ref }}
+          yq -i '.ephemeralTag="${{ github.event.pull_request.head.sha }}"' deployment/ephemeral-values.yaml
+          git add deployment/ephemeral-values.yaml
+          git commit -m "add eph tag: ${{ github.event.pull_request.head.sha }} to pr number: ${{ github.event.number }}"
+          git push
+
+      - name: Label PR
+        run: |
+          export GH_TOKEN=$ACCESS_TOKEN
+          echo "Labeling PR with ephemeral tag"
+          if ! gh label list | grep -q "eph-deploy";then gh label create eph-deploy --color 7057ff;fi
+          gh pr edit ${{ github.event.number }} --add-label eph-deploy

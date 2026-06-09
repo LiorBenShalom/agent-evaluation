@@ -1,0 +1,18 @@
+name: NestJS
+
+on:
+  push:
+    branches: [ '**' ]
+    paths-ignore: [ deployment/**, .github/** ]
+
+jobs:
+  nestjs:
+    uses: kaltura/ovp-pipelines/.github/workflows/nestjs-build.yml@v4
+    with:
+      apps: template
+      openapi-apps: template
+      # mongodb-action: true
+      # start-compose: true
+      # compose-health-services: mongo kafka
+      # compose-health-attempts: 20
+      # runs-on-label: 'instance-size:medium'

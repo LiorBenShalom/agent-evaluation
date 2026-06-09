@@ -1,0 +1,11 @@
+apiVersion: externaldns.k8s.io/v1alpha1
+kind: DNSEndpoint
+metadata:
+  name: {{ .Values.global.domain_name }}-cname
+spec:
+  endpoints:
+    - dnsName: {{ .Values.global.domain_name }}.{{ .Values.global.environment }}.ovp.kaltura.prod
+      recordType: CNAME
+      targets:
+        - {{ .Values.global.domain_name }}-blue-ng.{{ .Values.global.environment }}.ovp.kaltura.prod
+      recordTTL: 60

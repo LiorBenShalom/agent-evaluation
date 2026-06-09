@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>OpenAPI Spec</title>
+    <script src="https://cdn.jsdelivr.net/npm/redoc@2.0.0-rc.74/bundles/redoc.standalone.js"></script>
+    <link rel="icon" type="image/png" href="../favicon.png" />
+    <style>
+      header {
+        font-family: sans-serif;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!--    <section class="page-header"></section>-->
+    <script src="source.js"></script>
+    <hr />
+
+    <redoc id="redoc"></redoc>
+    <script>
+      const redoc = document.getElementById('redoc');
+      Redoc.init(
+        specFilename,
+        {
+          showObjectSchemaExamples: true,
+          hideDownloadButton: true,
+          expandResponses: '200',
+          expandSingleSchemaField: true,
+          hideHostname: true,
+          schemaExpansionLevel: 'all',
+          jsonSampleExpandLevel: 'all',
+          pathInMiddlePanel: true,
+          //         hideSchemaTitles: true,
+          theme: {
+            spacing: {
+              sectionVertical: '10px',
+            },
+          },
+        },
+        document.getElementById('redoc'),
+      );
+    </script>
+  </body>
+</html>

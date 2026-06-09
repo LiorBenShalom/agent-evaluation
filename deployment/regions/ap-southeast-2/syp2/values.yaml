@@ -1,0 +1,55 @@
+global:
+  environment: syp2
+  stage: prod
+  image:
+    repository: "650755435642.dkr.ecr.ap-southeast-2.amazonaws.com"
+
+template:
+  enabled: false
+  annotations:
+    kaltura.com/observability: apps
+    prometheus.io/path: /metrics
+    prometheus.io/scrape: 'true'
+    prometheus.io/port: '80'
+    vector.dev/logziobackend: 'true'
+    vector.dev/s3: 'true'
+  containers:
+    template:
+      image:
+        registry: template
+        tag: "latest"
+      environmentVariables:
+        - name: ENV_NAME
+          value: "syp2"
+        - name: KALTURA_API_ENDPOINT
+          value: "http://front-api.syp2.ovp.kaltura.prod"
+  ingress:
+    annotations:
+      alb.ingress.kubernetes.io/subnets: "subnet-06cd605cd49ea70c3,subnet-07b4eb981eb0da6af,subnet-01bc81b2d6477741d"
+    spec:
+      rules:
+        - http:
+            paths:
+              - path: /*
+                pathType: ImplementationSpecific
+                backend:
+                  service:
+                    name: syp2-ovp-ms-template-template-http-service
+                    port:
+                      number: 80
+  kedaHpa:
+    template:
+      minReplicaCount: 2
+      maxReplicaCount: 5
+      target:
+        name: syp2-ovp-ms-template-template
+      hpaScaler:
+        triggers:
+          - type: cpu
+            metadata:
+              type: Utilization
+              value: "70"
+          - type: memory
+            metadata:
+              type: Utilization
+              value: "70"

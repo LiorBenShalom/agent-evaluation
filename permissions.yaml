@@ -1,0 +1,20 @@
+permissions:
+  ALWAYS_ALLOWED_ACTIONS:
+    partnerId: 0
+    type: 1
+    friendlyName: 'Always allowed actions'
+
+actionPermissionItems:
+  template:
+    create:
+      partnerId: 0
+      permissions:
+        - ALWAYS_ALLOWED_ACTIONS
+    list:
+      partnerId: 0
+      permissions:
+        - ALWAYS_ALLOWED_ACTIONS
+    pingKalturaExample:
+      partnerId: 0
+      permissions:
+        - ALWAYS_ALLOWED_ACTIONS

@@ -1,0 +1,55 @@
+global:
+  environment: frp2
+  stage: prod
+  image:
+    repository: "082111255551.dkr.ecr.eu-central-1.amazonaws.com"
+
+template:
+  enabled: false
+  annotations:
+    kaltura.com/observability: apps
+    prometheus.io/path: /metrics
+    prometheus.io/scrape: 'true'
+    prometheus.io/port: '80'
+    vector.dev/logziobackend: 'true'
+    vector.dev/s3: 'true'
+  containers:
+    template:
+      image:
+        registry: template
+        tag: "latest"
+      environmentVariables:
+        - name: ENV_NAME
+          value: "frp2"
+        - name: KALTURA_API_ENDPOINT
+          value: "http://front-api.frp2.ovp.kaltura.prod"
+  ingress:
+    annotations:
+      alb.ingress.kubernetes.io/subnets: "subnet-0a1d8d12c136e442c,subnet-036771b82a5a19fdf,subnet-0609ed14d979b4d9c"
+    spec:
+      rules:
+        - http:
+            paths:
+              - path: /*
+                pathType: ImplementationSpecific
+                backend:
+                  service:
+                    name: frp2-ovp-ms-template-template-http-service
+                    port:
+                      number: 80
+  kedaHpa:
+    template:
+      minReplicaCount: 2
+      maxReplicaCount: 20
+      target:
+        name: frp2-ovp-ms-template-template
+      hpaScaler:
+        triggers:
+          - type: cpu
+            metadata:
+              type: Utilization
+              value: "70"
+          - type: memory
+            metadata:
+              type: Utilization
+              value: "70"

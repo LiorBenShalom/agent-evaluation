@@ -1,0 +1,55 @@
+global:
+  environment: sgp2
+  stage: prod
+  image:
+    repository: "882351240370.dkr.ecr.ap-southeast-1.amazonaws.com"
+
+template:
+  enabled: false
+  annotations:
+    kaltura.com/observability: apps
+    prometheus.io/path: /metrics
+    prometheus.io/scrape: 'true'
+    prometheus.io/port: '80'
+    vector.dev/logziobackend: 'true'
+    vector.dev/s3: 'true'
+  containers:
+    template:
+      image:
+        registry: template
+        tag: "latest"
+      environmentVariables:
+        - name: ENV_NAME
+          value: "sgp2"
+        - name: KALTURA_API_ENDPOINT
+          value: "http://front-api.sgp2.ovp.kaltura.prod"
+  ingress:
+    annotations:
+      alb.ingress.kubernetes.io/subnets: "subnet-086f1bfd2f45b56ff,subnet-03099f94952b801b4,subnet-0a234e8fc710eec20"
+    spec:
+      rules:
+        - http:
+            paths:
+              - path: /*
+                pathType: ImplementationSpecific
+                backend:
+                  service:
+                    name: sgp2-ovp-ms-template-template-http-service
+                    port:
+                      number: 80
+  kedaHpa:
+    template:
+      minReplicaCount: 2
+      maxReplicaCount: 5
+      target:
+        name: sgp2-ovp-ms-template-template
+      hpaScaler:
+        triggers:
+          - type: cpu
+            metadata:
+              type: Utilization
+              value: "70"
+          - type: memory
+            metadata:
+              type: Utilization
+              value: "70"
